@@ -1,23 +1,20 @@
-FROM srbala/openqa:base-al9
+FROM srbala/openqa:base-fedora
 LABEL AUTHOR="Bala Raman <srbala@gmail.com>"
 #
 # OpenQA WebUI
 #
 RUN dnf install -y --nodocs \
-    git-core openqa openqa-httpd git-core mod_ssl \
+    git-core openqa-local-db openqa-httpd git-core mod_ssl \
     nfs-utils perl-REST-Client python3-jsonschema \
     psmisc perl-Mojolicious-Plugin-OAuth2 \
-# should be able to run without these packages, enable if needed
-#   openqa-local-db fedora-messaging python3-fedfind python3-openqa_client  && \
-    python3-pip openqa-python-scripts ; \
+    python3-pip python3-openqa_client openqa-python-scripts \
+    fedora-messaging python3-fedfind && \
     dnf clean all && \
     pip install --no-cache-dir pytest pytest-testinfra tox && \
     cd /var/lib/openqa ; \
-# managed using volume, revisit if needed    
 #    chown geekotest -R db images testresults webui share/*; \
     mv /etc/openqa/database.ini /etc/openqa/database.ini_orig ; \
     mv /etc/openqa/openqa.ini /etc/openqa/openqa.ini_orig ; \
-# ssl config injected using volume mount
     mv /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/ssl.conf-orig ; \
     cp /etc/httpd/conf.d/openqa.conf.template /etc/httpd/conf.d/openqa.conf; 
 
@@ -44,7 +41,7 @@ RUN systemctl set-default multi-user.target; \
     systemctl enable httpd; \
 # enable this when/if fedora message enabled
 #    systemctl enable fm-consumer@fedora_openqa_scheduler; \
-    systemctl enable openqa-webui; 
+    systemctl enable openqa-webui;
 
 EXPOSE 80 443 9526 9527 9528 9529
 # CMD ["/usr/local/bin/run_openqa.sh"]
