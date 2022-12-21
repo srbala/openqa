@@ -1,4 +1,4 @@
-FROM srbala/openqa:base-al9-kvm
+FROM srbala/openqa:base-al9
 LABEL author Bala Raman <srbala@gmail.com>
 #
 # OpenQA Worker Node Image
@@ -8,39 +8,26 @@ RUN set -eux; \
     case "${ARCH}" in \
       aarch64) \
         march="arm64" ; qarch="aarch64"; \
+        optstr="--nodocs openqa-worker perl-REST-Client qemu-system-aarch64 qemu-tools qemu-img qemu-pr-helper ipxe-roms-qemu --exclude qemu-kvm-7.0.0"; \
         ;; \
       ppc64le) \
         march="ppc64el" ; qarch="ppc"; \
-        dnf install -y https://repo.almalinux.org/almalinux/9/AppStream/x86_64/os/Packages/seavgabios-bin-1.16.0-4.el9.noarch.rpm ; \
-        curl -L https://build.almalinux.org/pulp/content/builds/AlmaLinux-9-ppc64le-5471-br/config.repo -o /etc/yum.repos.d/oqa1.repo ; \
+        optstr="--nodocs openqa-worker perl-REST-Client qemu-system-ppc qemu-tools qemu-img qemu-pr-helper ipxe-roms-qemu "; \
         ;; \
       s390x) \
         march="s390x" ; qarch="s390x"; \
+        optstr="--nodocs openqa-worker perl-REST-Client qemu-system-s390x qemu-tools qemu-img qemu-pr-helper ipxe-roms-qemu --exclude qemu-kvm-7.0.0"; \
         ;; \         
       x86_64) \
         march="amd64" ; qarch="x86"; \
+        optstr="--nodocs openqa-worker perl-REST-Client qemu-system-x86 qemu-tools qemu-img qemu-pr-helper ipxe-roms-qemu --exclude qemu-kvm-7.0.0"; \
         ;; \
       *) \
         echo "Unsupported arch: ${ARCH}"; \
         exit 1; \
         ;; \
     esac; \
-    dnf install -y --setopt install_weak_deps=false --nodocs \
-      openqa-worker \
-      perl-REST-Client \ 
-      libvirt \
-      virt-manager \
-      virt-install \
-      qemu-kvm \
-#      guestfs-tools \
-#      libguestfs-xfs \
-#      libvirt-daemon-kvm \
-      qemu-img \
-      qemu-kvm-tools \
-      libvirt-client \
-      libvirt-dbus \
-      python3-libvirt \
-      libvirt-daemon; \
+    dnf install -y --setopt install_weak_deps=false --nodocs openqa-worker perl-REST-Client qemu-kvm-tools qemu-img qemu-pr-helper ipxe-roms-qemu qemu-kvm-7.0.0; \
     dnf clean all; \
     mkdir -p /root/qemu
 
@@ -62,7 +49,4 @@ RUN chmod +x /root/qemu/kvm-mknod.sh && \
     chmod -R ug+rw /usr/share/openqa/script/worker /var/lib/openqa/cache /var/lib/openqa/pool && \
     find /usr/share/openqa/script/worker /var/lib/openqa/cache /var/lib/openqa/pool -type d -exec chmod ug+x {} \;
 
-#ENTRYPOINT [ "/sbin/init" ]
-# CMD ["/sbin/init" "--" "/run_openqa_worker.sh"]
-# CMD [ "/bin/bash" ]
-ENTRYPOINT [ "/run_openqa_worker.sh" ]
+ENTRYPOINT ["/run_openqa_worker.sh"]
