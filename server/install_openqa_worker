@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# Test script based on installation guide from Fedora:
+# https://fedoraproject.org/wiki/OpenQA_direct_installation_guide
+#
+set -e
+#
+
+release=$(uname -a)
+export release
+echo "Installing OpenQA Worker on AlmaLinux"
+echo "Running on: $release"
+
+QAHOST="$1"
+if [ -z "$QAHOST" ]; then
+  QAHOST="localhost"
+  echo "No argument supplied, please enter OpenQA Server fqdn, or setting default value 'localhost'."
+#  exit 1
+fi
+ARCH="$(arch)"
+case "${ARCH}" in \
+    aarch64) qemu_pkg="qemu-system-aarch64"; \
+    ;; \
+    ppc64le) qemu_pkg="qemu-system-ppc"; \
+    ;; \
+    s390x) qemu_pkg="qemu-system-s390x"; \
+    ;; \
+    x86_64) qemu_pkg="qemu-system-x86"; \
+    ;; \
+    *) \
+    echo "Unsupported arch: ${ARCH}"; \
+    exit 1; \
+    ;; \
+esac; 
+
+if ! rpm -q openqa-worker &> /dev/null; then
+  sudo dnf install -y --setopt install_weak_deps=false --nodocs openqa-worker perl-REST-Client $qemu_pkg \
+        qemu-tools qemu-img qemu-pr-helper ipxe-roms-qemu \
+        which psmisc nfs-utils iputils rsync withlock --exclude qemu-kvm-7.0.0;
+else
+  echo "OpenQA Worker requirements already installed."
+fi
+
+# Open vnc port for 10 local worker clients
+# add new service "isotovideo" with ports covering 10 worker slots as explained in debugging steps above
+# allow the service in your zone (public in this example) right now
+if ! ( sudo firewall-cmd --get-services | grep -q openqa-vnc ); then
+  sudo firewall-cmd --permanent --new-service=openqa-vnc
+  sudo firewall-cmd --permanent --service=openqa-vnc --add-port=5900-5999/tcp
+  sudo firewall-cmd --zone=public --permanent --add-service openqa-vnc
+  sudo firewall-cmd --permanent --new-service isotovideo
+  for i in {1..10}; do sudo firewall-cmd --permanent --service=isotovideo --add-port=$((i * 10 + 20003))/tcp ; done
+  sudo firewall-cmd --zone=public --permanent --add-service=isotovideo
+  sudo firewall-cmd --reload
+fi
+
+
+
+if [[ ! -f /etc/openqa/client.conf ]]; then
+  sudo bash -c "cat >/etc/openqa/client.conf <<'EOF'
+[$QAHOST]
+key = 1234567890ABCDEF
+secret = 1234567890ABCDEF
+EOF"
+  echo "Note! the api key will expire in one day after installation!"
+else
+  echo "OpenQA Client configuration already exits at '/etc/openqa/client.conf' make adjustment as needed."
+fi
+
+if [[ ! -f /etc/openqa/workers.ini_orig ]]; then
+  sudo mv /etc/openqa/workers.ini /etc/openqa/workers.ini_orig
+  sudo bash -c "cat >/etc/openqa/workers.ini <<'EOF'
+[global]
+HOST = http://$QAHOST
+EOF"
+else
+  echo "OpenQA Worker configuration already exits at '/etc/openqa/wokrers.ini' make adjustment as needed."
+fi
+
+if ! systemctl is-active openqa-worker@1.service &> /dev/null; then
+  sudo systemctl enable --now openqa-worker@1.service
+fi

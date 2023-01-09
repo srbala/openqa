@@ -1,0 +1,1 @@
+Simple backload of assets from fedorapeople repo. Revisit and fix as needed

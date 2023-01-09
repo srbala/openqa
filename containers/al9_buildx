@@ -1,0 +1,9 @@
+#!/bin/bash
+# If possible, create the /dev/kvm device node.
+#
+set -e
+#
+cd base ; docker buildx build -t srbala/openqa:base-al9 --push -f Dockerfile .
+cd ../webui ; docker buildx build -t srbala/openqa:webui-al9 --push -f Dockerfile .
+cd ../worker ; docker buildx build -t srbala/openqa:worker-al9 --push -f Dockerfile .
+cd ..

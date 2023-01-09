@@ -1,0 +1,12 @@
+#!/bin/bash
+# 
+# 
+# Test script based on installation guide from Fedora:
+# https://fedoraproject.org/wiki/OpenQA_direct_installation_guide
+# 
+set -e
+#
+./install_openqa_server
+#
+./install_openqa_worker
+

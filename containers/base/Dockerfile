@@ -36,6 +36,7 @@ RUN mkdir /mnt/sys-root; \
     --nodocs \
     krb5-libs ; \
     dnf --installroot /mnt/sys-root clean all; 
+
 # Additional hacks for kickstart file and backward compatable support   /mnt/sys-root/var/lib/dnf/history*  
 RUN rm -rf /mnt/sys-root/var/log/dnf* /mnt/sys-root/var/log/yum.* /mnt/sys-root/usr/share/i18n/charmaps /mnt/sys-root/usr/share/i18n/locales ; \
     rm -rf /mnt/sys-root/var/cache/dnf/* /mnt/sys-root/var/lib/dnf/repos /mnt/sys-root/boot /mnt/sys-root/dev/null ; \
@@ -59,7 +60,8 @@ RUN rm -rf /mnt/sys-root/var/log/dnf* /mnt/sys-root/var/log/yum.* /mnt/sys-root/
     echo 'FONT="eurlatgr"' >> /mnt/sys-root/etc/vconsole.conf; \
     rm -rf /mnt/sys-root/usr/share/locale/en_US@piglati* /mnt/sys-root/run/blkid /mnt/sys-root/var/cache/dnf/.gpgkeyschecked.yum ; \
     rm -f /mnt/sys-root/etc/machine-id; \
-    touch /mnt/sys-root/etc/machine-id; 
+    touch /mnt/sys-root/etc/machine-id;
+
 # AL9 specific hacks    
 RUN mkdir -p /mnt/sys-root/var/cache/private /mnt/sys-root/var/lib/private /mnt/sys-root/var/lib/systemd/coredump /mnt/sys-root/var/lib/tpm2-tss/system/keystore ;\
     mkdir -p /mnt/sys-root/run/cryptsetup /mnt/sys-root/run/lock/subsys /mnt/sys-root/run/log /mnt/sys-root/run/user /mnt/sys-root/run/tpm2-tss/eventlog ;\
@@ -78,13 +80,17 @@ RUN mkdir -p /mnt/sys-root/var/cache/private /mnt/sys-root/var/lib/private /mnt/
 FROM scratch as stage2
 COPY --from=system-build /mnt/sys-root/ /
 
-RUN systemctl set-default multi-user.target; \
-    systemctl mask systemd-remount-fs.service \
-    dev-hugepages.mount \
-    sys-fs-fuse-connections.mount \
-    systemd-logind.service \
-    getty.target \
-    console-getty.service
+ENV container docker
+RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
+systemd-tmpfiles-setup.service ] || rm -f $i; done); \
+rm -f /lib/systemd/system/multi-user.target.wants/*;\
+rm -f /etc/systemd/system/*.wants/*;\
+rm -f /lib/systemd/system/local-fs.target.wants/*; \
+rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+rm -f /lib/systemd/system/basic.target.wants/*;\
+rm -f /lib/systemd/system/anaconda.target.wants/*;
+
 ENV GOSU_VERSION 1.14
 RUN set -eux; \
     ARCH="$(arch)"; \
@@ -121,21 +127,22 @@ RUN set -eux; \
     gosu --version; \
     gosu nobody true;
 
-FROM scratch 
-COPY --from=stage2 / /
-
-ENV LANG=C.utf8
-
 RUN dnf install -y epel-release 'dnf-command(copr)' 'dnf-command(config-manager)' ; \
     dnf -y config-manager --set-enabled crb ; \
 #    dnf -y copr --hub build.almalinux.org enable eabdullin1/openqa ; \
 # copr bug, always points to x84_64 repo results error in other arch
     curl -L https://build.almalinux.org/pulp/content/copr/eabdullin1-openqa-almalinux-9-$(arch)-dr/config.repo -o /etc/yum.repos.d/openqa.repo ; \
     dnf install --nodocs --setopt install_weak_deps=false -y shadow-utils shadow-utils-subid \
-      git-core nano which psmisc nfs-utils iputils postgresql \
+      sudo git-core nano which psmisc nfs-utils iputils postgresql \
       zip xz rsync withlock catatonit-0.1.7 tini; \
-    dnf clean all ; \
-    groupadd -r -g 700 geekotest; \
+    dnf clean all ; 
+
+FROM scratch 
+COPY --from=stage2 / /
+
+ENV LANG=C.utf8
+
+RUN groupadd -r -g 700 geekotest; \
     groupadd -r -g 701 _openqa-worker; \
     groupadd -r -g 703 qemu; \
     groupadd -r -g 704 libvirt; \
@@ -146,7 +153,9 @@ RUN dnf install -y epel-release 'dnf-command(copr)' 'dnf-command(config-manager)
     mkdir -p /etc/sudoers.d ; \
     echo "geekotest ALL=(ALL)     NOPASSWD: ALL" > /etc/sudoers.d/geekotest ; \
     echo "_openqa-worker ALL=(ALL)     NOPASSWD: ALL" > /etc/sudoers.d/openqawk ; \
-    systemctl set-default multi-user.target; \
+#    systemctl set-default multi-user.target; \
     ln -sf /usr/libexec/catatonit /usr/local/bin/catatonit ;
 
-CMD ["/sbin/init"]
+# VOLUME [ "/sys/fs/cgroup" ]
+
+CMD [ "/sbin/init" ]

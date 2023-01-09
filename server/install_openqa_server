@@ -1,0 +1,85 @@
+#!/bin/bash
+# 
+# 
+# Test script based on installation guide from Fedora:
+# https://fedoraproject.org/wiki/OpenQA_direct_installation_guide
+# 
+set -e
+#
+release=$(uname -a)
+export release
+echo Installing OpenQA on AlmaLinux
+echo Running on: "$release"
+
+sudo dnf install -y epel-release 'dnf-command(copr)' 'dnf-command(config-manager)'
+sudo dnf -y config-manager --set-enabled crb 
+## copr bug, always points to x84_64 repo results error in other arch
+# dnf -y copr --hub build.almalinux.org enable eabdullin1/openqa ; \
+sudo curl -L https://build.almalinux.org/pulp/content/copr/eabdullin1-openqa-almalinux-9-$(arch)-dr/config.repo -o /etc/yum.repos.d/openqa.repo 
+pkg_list=(git-core openqa openqa-httpd postgresql-server root-sql-pgsql mod_ssl perl-REST-Client python3-jsonschema perl-Mojolicious-Plugin-OAuth2 python3-pip openqa-python-scripts nano which psmisc nfs-utils iputils zip xz rsync withlock)
+if ! rpm -q "${pkg_list[@]}" &> /dev/null; then
+  sudo dnf install -y "${pkg_list[@]}"
+else
+  echo "openqa and all requirements installed."
+fi
+
+if [[ ! -f /etc/httpd/conf.d/openqa.conf ]]; then
+  sudo cp /etc/httpd/conf.d/openqa.conf.template /etc/httpd/conf.d/openqa.conf
+else
+  echo "apache conf files for openqa exist."
+fi
+
+if [[ ! -f /etc/openqa/openqa.ini.orig ]]; then
+  sudo cp /etc/openqa/openqa.ini /etc/openqa/openqa.ini.orig
+  sudo bash -c "cat >/etc/openqa/openqa.ini <<'EOF'
+[global]
+branding=plain
+download_domains = almalinux.org fedoraproject.org opensuse.org almalinux.github.io
+recognized_referers = bugs.almalinux.org git.almalinux.org almalinux.org bugzilla.suse.com bugzilla.opensuse.org progress.opensuse.org github.com gitlab.com
+
+[auth]
+method = Fake
+EOF"
+fi
+
+if ! systemctl is-active postgresql.service &> /dev/null; then
+  sudo postgresql-setup --initdb
+  sudo systemctl enable --now postgresql
+fi
+
+if ! systemctl is-active sshd.service &> /dev/null; then
+  sudo systemctl start sshd
+  sudo systemctl enable sshd
+fi
+
+if ! systemctl is-active httpd.service &> /dev/null; then
+  sudo systemctl enable --now openqa-scheduler
+  sudo systemctl enable --now openqa-gru
+  sudo systemctl enable --now openqa-websockets
+  sudo systemctl enable --now openqa-webui
+  sudo systemctl enable --now openqa-livehandler
+  sudo systemctl enable --now httpd
+#  sudo systemctl enable --now fm-consumer@fedora_openqa_scheduler
+  sudo setsebool -P httpd_can_network_connect 1
+  sudo systemctl restart httpd
+fi
+
+sudo firewall-cmd --zone=public --permanent --add-service=http
+sudo firewall-cmd --zone=public --permanent --add-service=https
+sudo firewall-cmd --reload
+
+echo ""
+echo " Done, preparations. Now log in one time!"
+echo ""
+echo "   http://$(hostname -f)/"
+echo ""
+echo " Install OpenQA worker and register one or more worker node(s)"
+echo ""
+echo "    ./install_openqa_worker"
+echo ""
+echo " After complete installing Server and Worker import AlmaLinux OpenQA tests and process ..."
+echo ""
+echo "    ./post_install"
+echo ""
+echo " Lets start testing ...!."
+echo ""

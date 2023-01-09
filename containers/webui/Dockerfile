@@ -1,4 +1,5 @@
-FROM srbala/openqa:base-al9
+ARG SYSBASE=srbala/openqa:base-al9
+FROM ${SYSBASE}
 LABEL AUTHOR="Bala Raman <srbala@gmail.com>"
 #
 # OpenQA WebUI

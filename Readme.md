@@ -1,3 +1,5 @@
-# OpenQA Infra
+# AlmaLinux OpenQA
 
-## AlmaLinux OpenQA Test environment
+Running AlmaLinux OpenQA in docker/container enviroment.
+
+## System Requirements

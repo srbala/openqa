@@ -1,0 +1,57 @@
+ARG SYSBASE=srbala/openqa:base-al9
+FROM ${SYSBASE}
+LABEL author Bala Raman <srbala@gmail.com>
+#
+# OpenQA Worker Node Image
+#
+RUN set -eux; \
+    dnf install -y --setopt install_weak_deps=false --nodocs \
+      openqa-worker \
+      perl-REST-Client \ 
+      libvirt \
+      virt-manager \
+      virt-install \
+      qemu-kvm \
+      libguestfs \
+      guestfs-tools \
+      libguestfs-xfs \
+      libvirt-daemon-kvm \
+      qemu-img \
+      qemu-kvm-tools \
+      libvirt-client \
+      libvirt-dbus \
+      python3-libvirt \
+      libvirt-daemon; \
+    dnf clean all; \
+    mkdir -p /root/qemu
+
+COPY kvm-mknod.sh /root/qemu/kvm-mknod.sh
+COPY run_openqa_worker.sh /run_openqa_worker.sh
+COPY entrypoint.sh /entrypoint.sh
+# ensure executability in case we loose file permissions, e.g. within open
+# build service when downloading files into the container build project
+RUN chmod +x /root/qemu/kvm-mknod.sh && \
+    chmod a+x /*.sh && \
+    # set-up shared data and configuration
+    mkdir -p /data/factory /data/tests /data/conf && \
+    rm -rf /etc/openqa/client.conf /etc/openqa/workers.ini && \
+    mkdir -p /var/lib/openqa/share && \
+    ln -s /data/factory /var/lib/openqa/share/factory && \
+    ln -s /data/tests /var/lib/openqa/share/tests && \
+    # set proper ownership and file modes
+    chown -h geekotest /var/lib/openqa/share/* && \
+    chown -R _openqa-worker /usr/share/openqa/script/worker /var/lib/openqa/cache /var/lib/openqa/pool && \
+    chmod -R ug+rw /usr/share/openqa/script/worker /var/lib/openqa/cache /var/lib/openqa/pool && \
+    find /usr/share/openqa/script/worker /var/lib/openqa/cache /var/lib/openqa/pool -type d -exec chmod ug+x {} \;
+
+RUN systemctl set-default multi-user.target; \
+    systemctl enable libvirtd; \ 
+    systemctl enable virtlockd; \
+    systemctl enable openqa-worker@1.service; \
+# Add configuration for "default" storage pool.
+    mkdir -p /etc/libvirt/storage
+
+COPY pool-default.xml /etc/libvirt/storage/default.xml
+
+CMD ["/sbin/init"]
+ENTRYPOINT [ "/entrypoint.sh" ]
