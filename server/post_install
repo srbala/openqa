@@ -1,14 +1,24 @@
 #!/bin/bash
-
+#
+# Post install script, import and test almalinux openqa test scripts
+#  1. Clone project
+#  2. Import project into OpenQA
+#  3. Download required ISO to test
+#  4. Use OpenQA-Cli to invoke test
+#  
 set -e
 
+#
+# Large repo size warnning! Due to nature this project, it might take some time to clone this project
+# Adjust clone step as needed. For example, add  `--depth=1` for shallow copy and quick test. Switch to a new branch for new test
+#
 if [[ ! -d /var/lib/openqa/tests/almalinux ]]; then
   cd /var/lib/openqa/tests/
   sudo git clone --single-branch --branch=dev https://github.com/AlmaLinux/os-autoinst-distri-almalinux.git almalinux
   sudo chown -R geekotest:geekotest almalinux
   cd almalinux
   git config --global --add safe.directory /var/lib/openqa/share/tests/almalinux
-  sudo git checkout main
+  sudo git checkout -b testNNN
 fi
 cd /var/lib/openqa/tests/almalinux && sudo ./fifloader.py -l -c templates.fif.json templates-updates.fif.json
 
