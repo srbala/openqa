@@ -1,4 +1,5 @@
-FROM srbala/openqa:base-fedora
+ARG SYSBASE=srbala/openqa:base-fedora
+FROM ${SYSBASE}
 LABEL author Bala Raman <srbala@gmail.com>
 #
 # OpenQA Worker Node Image

@@ -1,4 +1,5 @@
-FROM srbala/openqa:base-fedora
+ARG SYSBASE=srbala/openqa:base-fedora
+FROM ${SYSBASE}
 LABEL AUTHOR="Bala Raman <srbala@gmail.com>"
 #
 # OpenQA WebUI
