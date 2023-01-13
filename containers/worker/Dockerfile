@@ -5,8 +5,8 @@ LABEL author Bala Raman <srbala@gmail.com>
 # OpenQA Worker Node Image
 #
 RUN set -eux; \
-    dnf install -y https://build.almalinux.org/pulp/content/copr/eabdullin1-openqa-almalinux-9-ppc64le-dr/Packages/s/SLOF-20210217-1.el9.noarch.rpm \
-    dnf install -y https://repo.almalinux.org/almalinux/9/AppStream/aarch64/os/Packages/edk2-aarch64-20220526git16779ede2d36-3.el9.noarch.rpm \
+    dnf install -y https://build.almalinux.org/pulp/content/copr/eabdullin1-openqa-almalinux-9-ppc64le-dr/Packages/s/SLOF-20210217-1.el9.noarch.rpm ; \
+    dnf install -y https://repo.almalinux.org/almalinux/9/AppStream/aarch64/os/Packages/edk2-aarch64-20220526git16779ede2d36-3.el9.noarch.rpm ;\
     ARCH="$(arch)"; \
     case "${ARCH}" in \
       aarch64) \

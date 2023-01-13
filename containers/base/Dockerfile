@@ -28,14 +28,20 @@ RUN mkdir /mnt/sys-root; \
     vim-minimal \
     yum \
     xz \
+    shadow-utils \
+    shadow-utils-subid \
+    sudo \
+    git-core \
+    nano \
+    which \
+    psmisc \
+    nfs-utils \
+    iputils \
+    postgresql \
+    zip \
+    rsync \
+    catatonit-0.1.7 \    
     ; \
-    echo '%_install_langs en_US.UTF-8' > /etc/rpm/macros.image-language-conf ;\
-    dnf reinstall -y \
-    --installroot /mnt/sys-root \
-    --releasever 9 \
-    --setopt install_weak_deps=false \
-    --nodocs \
-    krb5-libs ; \
     dnf --installroot /mnt/sys-root clean all; 
 
 # Additional hacks for kickstart file and backward compatable support   /mnt/sys-root/var/lib/dnf/history*  
@@ -133,9 +139,6 @@ RUN dnf install -y epel-release 'dnf-command(copr)' 'dnf-command(config-manager)
 #    dnf -y copr --hub build.almalinux.org enable eabdullin1/openqa ; \
 # copr bug, always points to x84_64 repo results error in other arch
     curl -L https://build.almalinux.org/pulp/content/copr/eabdullin1-openqa-almalinux-9-$(arch)-dr/config.repo -o /etc/yum.repos.d/openqa.repo ; \
-    dnf install --nodocs --setopt install_weak_deps=false -y shadow-utils shadow-utils-subid \
-      sudo git-core nano which psmisc nfs-utils iputils postgresql \
-      zip xz rsync withlock catatonit-0.1.7 tini; \
     dnf clean all ; 
 
 FROM scratch 

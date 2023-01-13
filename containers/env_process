@@ -1,0 +1,45 @@
+set -e
+# process image prefix
+echo "HUB_IMAGE_PREFIX: $HUB_IMAGE_PREFIX"
+if [ -z "$1" ]; then
+  if [[ -z $HUB_IMAGE_PREFIX ]]; then
+    HUB_IMAGE_PREFIX="local"
+    echo "User image prefix not found, using default: $HUB_IMAGE_PREFIX"
+  else
+    echo "User image prefix found, using: $HUB_IMAGE_PREFIX"
+  fi
+else
+  HUB_IMAGE_PREFIX="$1"
+  echo "User image prefix from commandline: $HUB_IMAGE_PREFIX"
+fi
+ALT_DOCKER_FILE=0
+FILE_SUFFIX=""
+TAG_SUFFIX="-al9"
+if [[ ! -z "$2" ]]; then
+  echo "File suffix passed from commandline: $2"
+  if ([ "$2" != "kvm" ] && [ "$2" != "fedora" ]); then
+    echo "Invalid suffix for processing"
+    exit 1
+  else  
+    ALT_DOCKER_FILE=1
+    FILE_SUFFIX=".$2"
+    if [ "$2" == "fedora" ]; then
+      TAG_SUFFIX="-$2"
+    else 
+      TAG_SUFFIX="-al9-$2"
+    fi  
+  fi
+fi
+#
+FILE_NAME="Dockerfile$FILE_SUFFIX"
+echo "Dockerfile selected to process: $FILE_NAME"
+if [ -z "$OPENQA_IMAGE_BASE" ]; then
+  OPENQA_IMAGE_BASE="$HUB_IMAGE_PREFIX/openqa:base$TAG_SUFFIX"
+fi  
+if [ -z "$OPENQA_IMAGE_WEBUI" ]; then
+  OPENQA_IMAGE_WEBUI="$HUB_IMAGE_PREFIX/openqa:webui$TAG_SUFFIX"
+fi  
+if [ -z "$OPENQA_IMAGE_WORKER" ]; then
+  OPENQA_IMAGE_WORKER="$HUB_IMAGE_PREFIX/openqa:worker$TAG_SUFFIX"
+fi  
+echo "Expected image output tags: $OPENQA_IMAGE_BASE, $OPENQA_IMAGE_WEBUI, $OPENQA_IMAGE_WORKER"

@@ -7,7 +7,7 @@ LABEL AUTHOR="Bala Raman <srbala@gmail.com>"
 RUN dnf install -y --nodocs \
     git-core openqa openqa-httpd git-core mod_ssl \
     nfs-utils perl-REST-Client python3-jsonschema \
-    psmisc perl-Mojolicious-Plugin-OAuth2 \
+    psmisc perl-Mojolicious-Plugin-OAuth2 withlock\
 # should be able to run without these packages, enable if needed
 #   openqa-local-db fedora-messaging python3-fedfind python3-openqa_client  && \
     python3-pip openqa-python-scripts ; \
