@@ -1,47 +1,55 @@
-FROM srbala/openqa:base-al9-kvm
+ARG SYSBASE=srbala/openqa:base-al9
+FROM ${SYSBASE}
 LABEL author Bala Raman <srbala@gmail.com>
 #
 # OpenQA Worker Node Image
 #
 RUN set -eux; \
+    dnf install -y https://build.almalinux.org/pulp/content/copr/eabdullin1-openqa-almalinux-9-ppc64le-dr/Packages/s/SLOF-20210217-1.el9.noarch.rpm \
+    dnf install -y https://repo.almalinux.org/almalinux/9/AppStream/aarch64/os/Packages/edk2-aarch64-20220526git16779ede2d36-3.el9.noarch.rpm \
     ARCH="$(arch)"; \
     case "${ARCH}" in \
       aarch64) \
         march="arm64" ; qarch="aarch64"; \
+        optstr="qemu-system-aarch64"; \
         ;; \
       ppc64le) \
         march="ppc64el" ; qarch="ppc"; \
-#        dnf install -y https://repo.almalinux.org/almalinux/9/AppStream/x86_64/os/Packages/seavgabios-bin-1.16.0-4.el9.noarch.rpm ; \
-#        curl -L https://build.almalinux.org/pulp/content/builds/AlmaLinux-9-ppc64le-5471-br/config.repo -o /etc/yum.repos.d/oqa1.repo ; \
+        optstr="qemu-system-ppc"; \
         ;; \
       s390x) \
         march="s390x" ; qarch="s390x"; \
+        optstr="qemu-system-s390x"; \
         ;; \         
       x86_64) \
         march="amd64" ; qarch="x86"; \
+        optstr=" qemu-system-aarch64 qemu-system-ppc qemu-system-x86 qemu-system-s390x"; \
         ;; \
       *) \
         echo "Unsupported arch: ${ARCH}"; \
         exit 1; \
         ;; \
     esac; \
-    dnf install -y --setopt install_weak_deps=false --nodocs \
+#    dnf install -y --setopt install_weak_deps=false --nodocs openqa-worker perl-REST-Client qemu-kvm-tools qemu-img qemu-pr-helper ipxe-roms-qemu qemu-kvm-7.0.0; \
+    dnf install -y --nodocs --setopt install_weak_deps=false \
       openqa-worker \
-      perl-REST-Client \ 
-      libvirt \
-      virt-manager \
-      virt-install \
-      qemu-kvm \
-      libguestfs \
-      guestfs-tools \
-      libguestfs-xfs \
-      libvirt-daemon-kvm \
+      ${optstr} \
+      qemu-tools \
       qemu-img \
-      qemu-kvm-tools \
-      libvirt-client \
-      libvirt-dbus \
-      python3-libvirt \
-      libvirt-daemon; \
+      qemu-pr-helper \
+      ipxe-roms-qemu\
+      perl-REST-Client \
+      os-autoinst-openvswitch \
+      python3-openvswitch \
+      openvswitch-ipsec \
+      openvswitch-dpdk \
+      qemu-virtiofsd \
+      qemu-device-* \
+      qemu-ui-* \
+      qemu-user* \
+      libvirt-daemon-driver-qemu \
+      qemu-guest-agent \
+      --exclude qemu-kvm-7.0.0; \
     dnf clean all; \
     mkdir -p /root/qemu
 
@@ -63,14 +71,6 @@ RUN chmod +x /root/qemu/kvm-mknod.sh && \
     chmod -R ug+rw /usr/share/openqa/script/worker /var/lib/openqa/cache /var/lib/openqa/pool && \
     find /usr/share/openqa/script/worker /var/lib/openqa/cache /var/lib/openqa/pool -type d -exec chmod ug+x {} \;
 
-RUN systemctl set-default multi-user.target; \
-    systemctl enable libvirtd; \ 
-    systemctl enable virtlockd; \
-    systemctl enable openqa-worker@1.service; \
-# Add configuration for "default" storage pool.
-    mkdir -p /etc/libvirt/storage
-
-COPY pool-default.xml /etc/libvirt/storage/default.xml
-
-CMD ["/sbin/init"]
-ENTRYPOINT [ "/run_openqa_worker.sh" ]
+ENTRYPOINT [ "/usr/libexec/catatonit/catatonit" ]
+CMD ["/run_openqa_worker.sh"]
+# CMD [ "/bin/bash" ]

@@ -41,6 +41,8 @@ esac;
 if [[ ! rpm -q openqa-worker &> /dev/null ]]; then
   sudo dnf install -y --setopt install_weak_deps=false \
         --nodocs openqa-worker perl-REST-Client $qemu_pkg \
+        os-autoinst-openvswitch python3-openvswitch \
+        openvswitch-ipsec openvswitch-dpdk \
         qemu-tools qemu-img qemu-pr-helper ipxe-roms-qemu \
         which psmisc nfs-utils iputils rsync withlock \
         --exclude qemu-kvm-7.0.0;

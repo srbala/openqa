@@ -21,6 +21,10 @@ RUN set -eux; \
       libvirt-client \
       libvirt-dbus \
       python3-libvirt \
+      os-autoinst-openvswitch \
+      python3-openvswitch \
+      openvswitch-ipsec \
+      openvswitch-dpdk \
       libvirt-daemon; \
     dnf clean all; \
     mkdir -p /root/qemu

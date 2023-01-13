@@ -9,6 +9,7 @@ RUN mkdir /mnt/sys-root; \
     --nodocs \
     almalinux-release \
     bash \
+    bind-utils \
     binutils \
     coreutils \
     coreutils-common \
@@ -154,7 +155,7 @@ RUN groupadd -r -g 700 geekotest; \
     echo "geekotest ALL=(ALL)     NOPASSWD: ALL" > /etc/sudoers.d/geekotest ; \
     echo "_openqa-worker ALL=(ALL)     NOPASSWD: ALL" > /etc/sudoers.d/openqawk ; \
 #    systemctl set-default multi-user.target; \
-    ln -sf /usr/libexec/catatonit /usr/local/bin/catatonit ;
+    ln -sf /usr/libexec/catatonit/catatonit /usr/local/bin/catatonit ;
 
 # VOLUME [ "/sys/fs/cgroup" ]
 

@@ -8,6 +8,10 @@ RUN dnf install -y --nodocs openqa-worker \
     virt-install \
     qemu-kvm \
     ipxe-roms-qemu \
+    os-autoinst-openvswitch \
+    python3-openvswitch \
+    openvswitch-ipsec \
+    openvswitch-dpdk \
     && dnf clean all; \
     mkdir -p /root/qemu
 
