@@ -43,7 +43,7 @@ docker run -d --network aloqa-network \
        -v ${OPENQA_BASEDIR}/worker/conf/client.conf:/etc/openqa/client.conf \
        -p 80:80 -p 443:443 -p 9526:9526 -p 9527:9527 -p 9528:9528 -p 9529:9529 \
        --network-alias openqa_webui --name openqa_webui --restart=always \
-       srbala/openqa:webui-al9
+       almalinux/openqa:webui-al9
 ```
 
 ### Start Worker Node
@@ -58,7 +58,7 @@ docker run --network aloqa-network \
        -v ${OPENQA_BASEDIR}/worker/conf/workers.ini:/etc/openqa/workers.ini \
        -v ${OPENQA_BASEDIR}/worker/conf/client.conf:/etc/openqa/client.conf \
        --restart=always --network-alias openqa_worker1 --name openqa_worker1 -d \
-       srbala/openqa:worker-al9
+       almalinux/openqa:worker-al9
 ```
 
 Remote worker node.
@@ -74,5 +74,5 @@ docker run --network aloqa-network \
        -v /mnt/openqa/worker/conf/workers.ini:/etc/openqa/workers.ini \
        -v /mnt/openqa/worker/conf/client.conf:/etc/openqa/client.conf \
        --restart=always --network-alias worker1 --name worker1 -d \
-       srbala/openqa:worker-al9
+       almalinux/openqa:worker-al9
 ```

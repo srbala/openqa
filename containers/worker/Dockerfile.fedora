@@ -1,4 +1,4 @@
-ARG SYSBASE=srbala/openqa:base-fedora
+ARG SYSBASE=almalinux/openqa:base-fedora
 FROM ${SYSBASE}
 LABEL author Bala Raman <srbala@gmail.com>
 #

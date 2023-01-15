@@ -3,7 +3,7 @@
 #
 set -e
 #
-cd base ; docker buildx build --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x -t srbala/openqa:base-al9 --push -f Dockerfile .
-cd ../webui ; docker buildx build --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x -t srbala/openqa:webui-al9 --push -f Dockerfile .
-cd ../worker ; docker buildx build --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x -t srbala/openqa:worker-al9 --push -f Dockerfile .
+cd base ; docker buildx build --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x -t almalinux/openqa:base-al9 --push -f Dockerfile .
+cd ../webui ; docker buildx build --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x -t almalinux/openqa:webui-al9 --push -f Dockerfile .
+cd ../worker ; docker buildx build --platform=linux/amd64,linux/arm64,linux/ppc64le,linux/s390x -t almalinux/openqa:worker-al9 --push -f Dockerfile .
 cd ..

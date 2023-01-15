@@ -3,7 +3,7 @@
 #
 set -e
 #
-cd base ; docker build -t srbala/openqa:base-al9 -f Dockerfile .
-cd ../webui ; docker build -t srbala/openqa:webui-al9 -f Dockerfile .
-cd ../worker ; docker build -t srbala/openqa:worker-al9 -f Dockerfile .
+cd base ; docker build -t almalinux/openqa:base-al9 -f Dockerfile .
+cd ../webui ; docker build -t almalinux/openqa:webui-al9 -f Dockerfile .
+cd ../worker ; docker build -t almalinux/openqa:worker-al9 -f Dockerfile .
 cd ..

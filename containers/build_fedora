@@ -3,7 +3,7 @@
 #
 set -e
 #
-cd base ; docker build -t srbala/openqa:base-fedora -f Dockerfile.fedora .
-cd ../webui ; docker build -t srbala/openqa:webui-fedora -f Dockerfile.fedora .
-cd ../worker ; docker build -t srbala/openqa:worker-fedora -f Dockerfile.fedora .
+cd base ; docker build -t almalinux/openqa:base-fedora -f Dockerfile.fedora .
+cd ../webui ; docker build -t almalinux/openqa:webui-fedora -f Dockerfile.fedora .
+cd ../worker ; docker build -t almalinux/openqa:worker-fedora -f Dockerfile.fedora .
 cd ..

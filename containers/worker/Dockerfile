@@ -1,4 +1,4 @@
-ARG SYSBASE=srbala/openqa:base-al9
+ARG SYSBASE=almalinux/openqa:base-al9
 FROM ${SYSBASE}
 LABEL author Bala Raman <srbala@gmail.com>
 #

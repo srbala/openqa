@@ -1,4 +1,4 @@
-FROM srbala/openqa:base-al9-kvm
+FROM almalinux/openqa:base-al9-kvm
 LABEL author Bala Raman <srbala@gmail.com>
 #
 # OpenQA Worker Node Image
