@@ -8,6 +8,9 @@ RUN dnf install -y --nodocs openqa-worker \
     perl-REST-Client \
     virt-install \
     qemu-kvm \
+    qemu*aarch64* \
+    qemu*ppc* \
+    qemu*s390* \
     ipxe-roms-qemu \
     os-autoinst-openvswitch \
     python3-openvswitch \
