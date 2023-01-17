@@ -705,8 +705,7 @@ sub start_qemu ($self) {
     $arch = 'arm' if ($arch =~ /armv6|armv7/);
     my $is_arm = $arch eq 'aarch64' || $arch eq 'arm';
     my $is_s390x = $arch eq 's390x';
-    my $ne_s390x = $arch ne 's390x';
-
+  
     $self->_set_graphics_backend($is_arm);
 
     # misc
@@ -802,25 +801,25 @@ sub start_qemu ($self) {
     bmwqemu::diag('Initializing block device images');
     $self->{proc}->init_blockdev_images();
 
-    sp('only-migratable') if ($ne_s390x && $self->can_handle({function => 'snapshots', no_warn => 1}));
+    sp('only-migratable') unless $is_s390x && $self->can_handle({function => 'snapshots', no_warn => 1});
     sp('chardev', 'ringbuf,id=serial0,logfile=serial0,logappend=on');
     sp('serial', 'chardev:serial0');
 
-    if ($ne_s390x) {
-    if ($self->requires_audiodev) {
-        my $audiodev = $vars->{QEMU_AUDIODEV} // 'intel-hda';
-        my $audiobackend = $vars->{QEMU_AUDIOBACKEND} // 'none';
-        sp('audiodev', $audiobackend . ',id=snd0');
-        if ("$audiodev" eq "intel-hda") {
-            sp('device', $audiodev);
-            $audiodev = "hda-output";
+    unless ($is_s390x) {
+        if ($self->requires_audiodev) {
+            my $audiodev = $vars->{QEMU_AUDIODEV} // 'intel-hda';
+            my $audiobackend = $vars->{QEMU_AUDIOBACKEND} // 'none';
+            sp('audiodev', $audiobackend . ',id=snd0');
+            if ("$audiodev" eq "intel-hda") {
+                sp('device', $audiodev);
+                $audiodev = "hda-output";
+            }
+            sp('device', $audiodev . ',audiodev=snd0');
         }
-        sp('device', $audiodev . ',audiodev=snd0');
-    }
-    else {
-        my $soundhw = $vars->{QEMU_SOUNDHW} // 'hda';
-        sp('soundhw', $soundhw);
-    }
+        else {
+            my $soundhw = $vars->{QEMU_SOUNDHW} // 'hda';
+            sp('soundhw', $soundhw);
+        }
     }
     {
         # Remove floppy drive device on architectures
@@ -858,7 +857,7 @@ sub start_qemu ($self) {
         # Keep additional virtio _after_ Ethernet setup to keep virtio-net as eth0
         if ($vars->{QEMU_VIRTIO_RNG} // 1) {
             sp('object', 'rng-random,filename=/dev/urandom,id=rng0');
-            sp('device', 'virtio-rng-pci,rng=rng0') if ($ne_s390x);
+            sp('device', 'virtio-rng-pci,rng=rng0');
         }
 
         sp('smbios', $vars->{QEMU_SMBIOS}) if $vars->{QEMU_SMBIOS};
@@ -902,9 +901,9 @@ sub start_qemu ($self) {
             sp(lc($attribute), $vars->{$attribute}) if $vars->{$attribute};
         }
 
-        unless ($vars->{QEMU_NO_TABLET}) {
-            sp('device', ($vars->{OFW} || $arch eq 'aarch64') ? 'nec-usb-xhci' : 'qemu-xhci') if ($ne_s390x);
-            sp('device', 'usb-tablet') if ($ne_s390x);
+        unless ($is_s390x or $vars->{QEMU_NO_TABLET}) {
+            sp('device', ($vars->{OFW} || $arch eq 'aarch64') ? 'nec-usb-xhci' : 'qemu-xhci');
+            sp('device', 'usb-tablet');
         }
 
         sp('device', 'usb-kbd') if $use_usb_kbd;
