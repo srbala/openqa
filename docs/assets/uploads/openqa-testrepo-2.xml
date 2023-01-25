@@ -1,1 +1,19 @@
-1628635132 3069 73478713d7b94f093400a63e91de88ba c1b6c4105d2073739390224e345afd3ab797b0e6 e079c2b844cbb834e8eb10fe3ec31b7888e166016530d785482fc784907d2af9 34e5c9540e9f0d2f49894826ab9c61d181989e45fd7cecd6df54f3eb449dd4f338dae779bc2f4400ead591851ce8db80c682f4d673de3e16fe45db8ca8efa9d2 https://fedorapeople.org/groups/qa/openqa-repos/openqa-testrepo-2/repodata/repomd.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<metalink version="3.0" xmlns="http://www.metalinker.org/" type="dynamic" pubdate="Tue, 10 Aug 2021 22:41:28 GMT" generator="adamwill" xmlns:mm0="https://fedorapeople.org/groups/qa/openqa-repos/openqa-testrepo-2/">
+ <files>
+  <file name="repomd.xml">
+   <mm0:timestamp>1628635132</mm0:timestamp>
+   <size>3069</size>
+   <verification>
+    <hash type="md5">73478713d7b94f093400a63e91de88ba</hash>
+    <hash type="sha1">c1b6c4105d2073739390224e345afd3ab797b0e6</hash>
+    <hash type="sha256">e079c2b844cbb834e8eb10fe3ec31b7888e166016530d785482fc784907d2af9</hash>
+    <hash type="sha512">34e5c9540e9f0d2f49894826ab9c61d181989e45fd7cecd6df54f3eb449dd4f338dae779bc2f4400ead591851ce8db80c682f4d673de3e16fe45db8ca8efa9d2</hash>
+   </verification>
+   <resources maxconnections="1">
+    <url protocol="https" type="https" location="US" preference="99">https://fedorapeople.org/groups/qa/openqa-repos/openqa-testrepo-2/repodata/repomd.xml</url>
+   </resources>
+  </file>
+ </files>
+</metalink>

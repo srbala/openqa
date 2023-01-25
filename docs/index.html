@@ -6,17 +6,84 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta name="keywords" content="almalinux,openqa,testing,fedora,opensuse,docs,documentation" />
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link
+    rel="stylesheet"
+    href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/dark.css"
+    title="dark"
+    disabled />
+  <link
+    rel="stylesheet"
+    href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/buble.css"
+    title="buble"
+    disabled />
+  <link
+    rel="stylesheet"
+    href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/pure.css"
+    title="pure"
+    disabled />
+  <link
+    rel="stylesheet"
+    href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/dolphin.css"
+    title="dolphin"
+    disabled />
+  <style>
+    nav.app-nav li ul {
+      min-width: 100px;
+    }
+
+    #carbonads {
+      box-shadow: none !important;
+      width: auto !important;
+    }
+  </style>
 </head>
 <body>
   <div id="app"></div>
   <script>
     window.$docsify = {
       name: '',
-      repo: ''
+      repo: '',
+      loadSidebar: true,
+      subMaxLevel: 3,
+      coverpage: true,
+      plugins: [
+          function (hook, vm) {
+            hook.beforeEach(function (html) {
+              if (/githubusercontent\.com/.test(vm.route.file)) {
+                url = vm.route.file
+                  .replace('raw.githubusercontent.com', 'github.com')
+                  .replace(/\/master/, '/blob/master');
+              } else if (/jsdelivr\.net/.test(vm.route.file)) {
+                url = vm.route.file
+                  .replace('cdn.jsdelivr.net/gh', 'github.com')
+                  .replace('@master', '/blob/master');
+              } else {
+                url =
+                  'https://github.com/srbala/openqa/blob/dev/docs/' +
+                  vm.route.file;
+              }
+              var editHtml = '[:memo: Edit Page](' + url + ')\n';
+              return (
+                editHtml +
+                html +
+                '\n\n----\n\n' +
+                'A <a href="https://almalinux.org" target="_blank" style="color: inherit; font-weight: normal; text-decoration: none;">Almalinux Foundation</a> project. ' +
+                'Tests powerd by <a href="https://open.qa" target="_blank" style="color: inherit; font-weight: normal; text-decoration: none;">OpenQA</a>, Documentation powered by <a href="https://docsify.js.org" target="_blank" style="color: inherit; font-weight: normal; text-decoration: none;">docsify</a>.<br/>' + 
+                'Generously sponsored and suppored by CloudLinux, KnownHost, Equinix Metal, OpenStack, AMD, Ampere, and IBM.'
+              );
+            })
+          },
+        ],
     }
   </script>
   <!-- Docsify v4 -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-markdown.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/vue@2/dist/vue.min.js"></script>
+  <!-- <script src="//cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script> -->
 </body>
 </html>

@@ -2,8 +2,34 @@
 
 AlmaLinux OpenQA Documentation
 
-## notes
+## System Requirements
 
-Base site setup, full site coming soon
 
-> OpenQA Documentation.
+## Getting started
+
+The project's information is organized into four basic documents. As a first
+step, read the link:docs/GettingStarted.asciidoc[Starter Guide] and then, if
+needed, proceed to the link:docs/Installing.asciidoc[Installation Guide].
+
+For users of the openQA web interface or the REST API consult
+link:docs/UsersGuide.asciidoc[Users Guide].
+
+If you are interested in writing tests using openQA read the
+link:docs/WritingTests.asciidoc[Tests Developer Guide].
+
+## What is OpenQA
+
+openQA is a testing framework that allows you to test GUI applications on one
+hand and bootloader and kernel on the other. In both cases, it is difficult to
+script tests and verify the output. Output can be a popup window or it can be
+an error in early boot even before init is executed.
+
+Therefore openQA runs virtual machines and closely monitors their state and
+runs tests on them.
+
+The testing framework can be divided in two parts. The one that is hosted in
+this repository contains the web frontend and management logic (test
+scheduling, management, high-level API, ...)
+
+The other part that you need to run openQA is the OS-autoinst test engine that
+is hosted in a separate [repository](https://github.com/os-autoinst/os-autoinst).
