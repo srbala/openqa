@@ -2,19 +2,25 @@
 
 Running AlmaLinux OpenQA in docker/container enviroment.
 
-## System Requirements
-
-AlmaLinux
-OpenQA Container Images
-
 ## Server configuration
+
+* AlmaLinux 9 OR a Fedora 37 system
+* Server specifications meets the requirements of OpenQA
+* AlmaLinux OpenQA Container Images
+* Docker installed and configured
 
 ## WebUI
 
-### Set Environment variables
+### Server Environments
 
 ```sh
 export OPENQA_BASEDIR=/srv/nfs/openqa
+```
+
+Create docker network for containers. Network needs to be created only once on a system.
+
+```sh
+docker network create aloqa-network 
 ```
 
 ### Start database
@@ -39,6 +45,7 @@ docker run -d --network aloqa-network \
        -v ${OPENQA_BASEDIR}/shared/tests:/data/tests \
        -v ${OPENQA_BASEDIR}/shared/factory/iso:/data/factory/iso \
        -v ${OPENQA_BASEDIR}/shared/factory/hdd:/data/factory/hdd \
+       -v ${OPENQA_BASEDIR}/shared/factory/tmp:/data/factory/tmp \
        -v ${OPENQA_BASEDIR}/worker/conf/workers.ini:/etc/openqa/workers.ini \
        -v ${OPENQA_BASEDIR}/worker/conf/client.conf:/etc/openqa/client.conf \
        -p 80:80 -p 443:443 -p 9526:9526 -p 9527:9527 -p 9528:9528 -p 9529:9529 \
@@ -46,33 +53,56 @@ docker run -d --network aloqa-network \
        almalinux/openqa:webui-al9
 ```
 
-### Start Worker Node
+## Worker Nodes
 
-Local worker node.
+### Worker Environments
+
+Set the environment variable depends local worker or remote worker.
+
+```sh
+export OPENQA_BASEDIR=/srv/nfs/openqa
+OR
+export RMT_OPENQA_BASEDIR=/mnt/nfs/openqa
+
+```
+
+Create docker network for containers. Network needs to be created only once on a system.
+
+```sh
+docker network create aloqa-network 
+```
+
+### Local Worker Node
+
+Running a local worker node.
 
 ```sh
 docker run --network aloqa-network \
        --device /dev/kvm --privileged \
        -v ${OPENQA_BASEDIR}/shared/tests:/data/tests \
-       -v ${OPENQA_BASEDIR}/shared/factory:/data/factory \
+       -v ${OPENQA_BASEDIR}/shared/factory/iso:/data/factory/iso \
+       -v ${OPENQA_BASEDIR}/shared/factory/hdd:/data/factory/hdd \
+       -v ${OPENQA_BASEDIR}/shared/factory/tmp:/data/factory/tmp \
        -v ${OPENQA_BASEDIR}/worker/conf/workers.ini:/etc/openqa/workers.ini \
        -v ${OPENQA_BASEDIR}/worker/conf/client.conf:/etc/openqa/client.conf \
        --restart=always --network-alias openqa_worker1 --name openqa_worker1 -d \
        almalinux/openqa:worker-al9
 ```
 
-Remote worker node.
+### Remote Worker Node
+
+Running a remote worker node. A NFS server or SSHFS mouts are used to share the data with main web ui server. Pass the additional `add-host` option with fully qualified dns name or IP address for worker to resolve.
 
 ```sh
 docker run --network aloqa-network \
        --device /dev/kvm --privileged \
-       --add-host=openqa_webui:145.40.99.22 \
-       -v /mnt/openqa/shared/tests:/data/tests \
-       -v /mnt/openqa/shared/factory/iso:/data/factory/iso \
-       -v /mnt/openqa/shared/factory/hdd:/data/factory/hdd \
-       -v /mnt/openqa/shared/factory/tmp:/data/factory/tmp \
-       -v /mnt/openqa/worker/conf/workers.ini:/etc/openqa/workers.ini \
-       -v /mnt/openqa/worker/conf/client.conf:/etc/openqa/client.conf \
-       --restart=always --network-alias worker1 --name worker1 -d \
+       --add-host=openqa_webui:NNN.NNN.NNN.NNN \
+       -v ${RMT_OPENQA_BASEDIR}/shared/tests:/data/tests \
+       -v ${RMT_OPENQA_BASEDIR}/shared/factory/iso:/data/factory/iso \
+       -v ${RMT_OPENQA_BASEDIR}/shared/factory/hdd:/data/factory/hdd \
+       -v ${RMT_OPENQA_BASEDIR}/shared/factory/tmp:/data/factory/tmp \
+       -v ${RMT_OPENQA_BASEDIR}/worker/conf/workers.ini:/etc/openqa/workers.ini \
+       -v ${RMT_OPENQA_BASEDIR}/worker/conf/client.conf:/etc/openqa/client.conf \
+       --restart=always --network-alias worker10 --name worker10 -d \
        almalinux/openqa:worker-al9
 ```

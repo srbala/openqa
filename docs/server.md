@@ -8,7 +8,7 @@ Some ready-made scripts are available for the speedup installation process. Clon
 
 ## Scripts Details
 
-Following list of scripts are available in server folder for customize and use.
+Following list of scripts are available in [`server folder`](https://github.com/AlmaLinux/openqa-infra) for customize and use.
 
 * `install_openqa_server` - OpenQA Server UI and database install script.
 * `install_openqa_worker` - OpenQA Worker install script, multiple worker nodes can be run from a single install.
