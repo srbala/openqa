@@ -1,15 +1,21 @@
-- Getting Started
-  - [Home](/)
+# AlmaLinux OpenQA  <!-- {docsify-ignore} -->
 
-- Install & Configure
-  - [Build Images](Advanced.md)
-  - [Server](server.md)
+- Home
+  - [Getting Started](/)
 
-- Advanced topics
-  - [Advanced](Advanced.md)
-  - [Containers Detail](containers-detail.md)
-  - [Containers](containers.md)
-  - [Running Tests](server.md)
+- Using Baremetal or VMs
+  - [Server - summary](server.md)
+  - [Server - details](server-details.md)
 
-- Utils & Support
+- Using Containers
+  - [Containers - summary](containers.md)
+  - [Containers - details](containers-details.md)
+
+- OpenQA Tests
+  - [Tests - Basic](tests.md)
+  - [Tests - Advanced](tests-advanced.md)
+
+- Support & References
   - [Support](support.md)
+  - [References](references.md)
+  
